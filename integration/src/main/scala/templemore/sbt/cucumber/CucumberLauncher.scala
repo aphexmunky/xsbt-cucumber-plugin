@@ -5,11 +5,13 @@ import java.lang.reflect.InvocationTargetException
 import java.util.Properties
 
 import cucumber.runtime.Runtime
+import cucumber.runtime.Env
 import cucumber.runtime.RuntimeOptions
-import cucumber.runtime.snippets.SummaryPrinter
 import cucumber.runtime.model.CucumberFeature
 import gherkin.formatter.Formatter
 import gherkin.formatter.Reporter
+
+import collection.JavaConversions._
 
 class CucumberLauncher(debug: (String) => Unit, error: (String) => Unit) {
   
@@ -21,9 +23,7 @@ class CucumberLauncher(debug: (String) => Unit, error: (String) => Unit) {
   }
 
   private def runCucumber(runtime: CucumberRuntime) = try { 
-    runtime.initialise
     runtime.run
-    runtime.printSummary
     runtime.exitStatus
   } catch {
     case e: InvocationTargetException => {
@@ -34,11 +34,9 @@ class CucumberLauncher(debug: (String) => Unit, error: (String) => Unit) {
   }
 
   case class CucumberRuntime(runtime: Runtime, options: RuntimeOptions, loader: AnyRef, 
-                             formatter: Formatter, reporter: Reporter, summaryPrinter: SummaryPrinter) {
+                             formatter: Formatter, reporter: Reporter) {
     private val loaderClass = loader.getClass.getInterfaces()(0)
 
-    def initialise = runtime.writeStepdefsJson()
-    def printSummary = summaryPrinter.print(runtime)
     def exitStatus = runtime.exitStatus
 
     def run = {
@@ -58,14 +56,14 @@ class CucumberLauncher(debug: (String) => Unit, error: (String) => Unit) {
   
     val loaderClass = loadCucumberClasses(classLoader)
 
-    val options = new RuntimeOptions(properties, arguments :_*)
+    val options = new RuntimeOptions(new Env, arguments.toList: java.util.List[String])
     val loader = buildLoader(loaderClass)
 
     val runtimeConstructor = classOf[Runtime].getConstructor(loaderClass.getInterfaces()(0), classOf[ClassLoader], classOf[RuntimeOptions])
     val runtime = runtimeConstructor.newInstance(loader, classLoader, options).asInstanceOf[Runtime]
 
     CucumberRuntime(runtime, options, loader, 
-                    options.formatter(classLoader), options.reporter(classLoader), new SummaryPrinter(System.out))
+                    options.formatter(classLoader), options.reporter(classLoader))
   } catch {
     case e: Exception => 
       error("Unable to construct cucumber runtime. Please report this as an error. (Details: " + e.getMessage + ")")

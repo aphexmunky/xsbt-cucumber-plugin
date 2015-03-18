@@ -24,7 +24,7 @@ class CucumberRunner(testClassLoader: ClassLoader, loggers: Array[Logger]) exten
   private val cucumber = new CucumberLauncher(debug = logDebug, error = logError)
 
   def run(testClassName: String, fingerprint: Fingerprint, eventHandler: EventHandler, args: Array[String]) = try {
-    val arguments = Array("--glue", "", "--format", "pretty") ++ processArgs(args) ++ Array("classpath:")
+    val arguments = Array("--glue", "", "--format=pretty") ++ processArgs(args) ++ Array("classpath:")
     cucumber(arguments, testClassLoader) match {
       case 0 => 
         logDebug("Cucumber tests completed successfully")

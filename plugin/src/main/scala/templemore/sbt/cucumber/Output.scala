@@ -13,9 +13,9 @@ case class Output(prettyReport: Boolean, htmlReport: Boolean, junitReport: Boole
   def options: List[String] = {
     (if (prettyReport) {
        prettyReportFile.getParentFile.mkdirs()
-       "--format" :: "progress" :: "--format" :: "pretty:%s".format(prettyReportFile.getPath) :: Nil
+       "--format" :: "progress" :: "--format" :: "pretty1:%s".format(prettyReportFile.getPath) :: Nil
      }
-     else "--format" :: "pretty" :: Nil) ++
+     else "--format=pretty" :: Nil) ++
     (if ( htmlReport) {
        htmlReportDir.mkdirs()
        "--format" :: "html:%s".format(htmlReportDir.getPath) :: Nil

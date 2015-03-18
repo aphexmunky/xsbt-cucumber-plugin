@@ -4,7 +4,7 @@ import Keys._
 object Settings {
   val buildOrganization = "templemore"
   val buildScalaVersion = "2.10.2"
-  val crossBuildScalaVersions = Seq("2.9.3", "2.10.2")
+  val crossBuildScalaVersions = Seq("2.10.2", "2.11.6")
   val buildVersion      = "0.8.0"
 
   val buildSettings = Defaults.defaultSettings ++
@@ -17,11 +17,9 @@ object Settings {
 
 object Dependencies {
 
-  private val CucumberVersion = "1.1.4"
+  private val CucumberVersion = "1.2.2"
 
-  def cucumberJvm(scalaVersion: String) = 
-    if ( scalaVersion.startsWith("2.9") ) "info.cukes" % "cucumber-scala_2.9" % CucumberVersion % "compile"
-    else "info.cukes" %% "cucumber-scala" % CucumberVersion % "compile"
+  def cucumberJvm(scalaVersion: String) = "info.cukes" %% "cucumber-scala" % CucumberVersion % "compile"
 
   val testInterface = "org.scala-tools.testing" % "test-interface" % "0.5" % "compile"
 }
@@ -30,11 +28,9 @@ object Build extends Build {
   import Dependencies._
   import Settings._
 
-  lazy val parentProject = Project("sbt-cucumber-parent", file ("."),
-    settings = buildSettings)
+  lazy val parentProject = Project("sbt-cucumber-parent", file ("."), settings = buildSettings)
 
-  lazy val pluginProject = Project("sbt-cucumber-plugin", file ("plugin"),
-    settings = buildSettings ++
+  lazy val pluginProject = Project("sbt-cucumber-plugin", file ("plugin"), settings = buildSettings ++
                Seq(crossScalaVersions := Seq.empty, sbtPlugin := true))
 
   lazy val integrationProject = Project ("sbt-cucumber-integration", file ("integration"),
